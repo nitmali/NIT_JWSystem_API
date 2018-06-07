@@ -29,16 +29,28 @@ public class MainController {
 
     @GetMapping("/login")
     public String jwxtLogin(HttpServletRequest request, String userId, String password) throws Exception{
-        return login.getLogin(request, userId, password);
+        String loginMessage = null;
+
+        for (int numberOfLogin = 0;numberOfLogin < 3;numberOfLogin++){
+            loginMessage =  login.getLogin(request, userId, password);
+            if(numberOfLogin > 0){
+                System.out.println("第"+numberOfLogin+"次尝试重新登陆");
+            }
+            if(!loginMessage.equals("验证码不正确")){
+                break;
+            }
+        }
+
+        return loginMessage;
     }
 
     @GetMapping("/getResult")
     public String getResult(HttpServletRequest request) throws Exception {
 
-//        if (request.getSession().getAttribute("login") == null){
-//            login.getLogin(request, userId, password);
-//        }
-        return  getResult.getResult(request);
-
+        try {
+            return  getResult.getResult(request);
+        }catch (Exception e){
+            return "请使用 /login?userId=userId&password=password 登录";
+        }
     }
 }

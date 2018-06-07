@@ -12,8 +12,6 @@ import javax.servlet.http.HttpSession;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,36 +27,41 @@ public class Login {
     @Resource
     private GetVerification getVerification;
 
-    public String  getLogin(HttpServletRequest request, String userId, String password) throws Exception {
+    public String getLogin(HttpServletRequest request, String userId, String password) throws Exception {
 
-        password = password.replace(" ","+");
+        password = password.replace(" ", "+");
 
         HttpSession session = request.getSession();
 
+        Map<String, String> loginPageCookies = null;
+
+        String viewstate = null;
+
         session.setAttribute("userId", userId);
 
-        String chrome = "Mozilla/5.0 (Windows NT 10.0; WOW64) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) " +
-                "Chrome/64.0.3282.186 Safari/537.36";
+        try {
+            Connection.Response fistResponse = Jsoup
+                    .connect("http://jwxt.nit.net.cn/default2.aspx")
+                    .method(Connection.Method.GET)
+                    .timeout(5000)
+                    .execute();
 
-        Connection.Response fistResponse = Jsoup
-                .connect("http://jwxt.nit.net.cn/default2.aspx")
-                .method(Connection.Method.GET)
-                .userAgent(chrome)
-                .execute();
-
-        Map<String, String> loginPageCookies = fistResponse.cookies();
+            loginPageCookies = fistResponse.cookies();
 
 
-        String VIEWSTATE = Jsoup.parse(fistResponse.body())
-                .getElementsByTag("input")
-                .get(0).attr("value");
+            viewstate = Jsoup.parse(fistResponse.body())
+                    .getElementsByTag("input")
+                    .get(0).attr("value");
+
+        } catch (Exception e) {
+            session.setAttribute("errorMessage", "登陆失败，请稍后再试");
+            return session.getAttribute("errorMessage").toString();
+        }
 
 
         Connection.Response txtSecretCodeResponse = Jsoup
                 .connect("http://jwxt.nit.net.cn/CheckCode.aspx")
                 .method(Connection.Method.GET)
-                .userAgent(chrome)
                 .cookies(loginPageCookies)
                 .ignoreContentType(true)
                 .execute();
@@ -80,8 +83,7 @@ public class Login {
         }
 
         Map<String, String> loginInfo = new HashMap<>();
-
-        loginInfo.put("__VIEWSTATE", VIEWSTATE);
+        loginInfo.put("__VIEWSTATE", viewstate);
         loginInfo.put("txtUserName", userId);
         loginInfo.put("Textbox1", "");
         loginInfo.put("TextBox2", password);
@@ -110,7 +112,7 @@ public class Login {
             session.setAttribute("errorMessage", verificationError);
         } else if (loginResponse.body().contains(passwordError)) {
             session.setAttribute("errorMessage", passwordError);
-        }else {
+        } else {
             session.setAttribute("errorMessage", null);
         }
 
@@ -128,7 +130,7 @@ public class Login {
             System.out.println(session.getAttribute("userId")
                     + "  " + session.getAttribute("userName")
                     + " 登录于 " + new Date());
-            session.setAttribute("login","true");
+            session.setAttribute("login", "true");
             return session.getAttribute("userName").toString();
         } catch (Exception e) {
             System.err.println(session.getAttribute("errorMessage").toString() + "  " + new Date());
