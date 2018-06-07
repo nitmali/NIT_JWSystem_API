@@ -1,23 +1,21 @@
 package com.jwxt.service;
 
-import com.jwxt.service.graphiccr.GetVerification;
+import com.jwxt.service.Verification.GetVerification;
+import com.jwxt.service.Verification.VerificationConfig;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author nitmali@126.com
+ * @author me@nitmali.com
  * @date 2018/6/6 14:27
  */
 
@@ -27,11 +25,28 @@ public class Login {
     @Resource
     private GetVerification getVerification;
 
+
+    @Resource
+    private VerificationConfig verificationConfig;
+
     public String getLogin(HttpServletRequest request, String userId, String password) throws Exception {
 
-        password = password.replace(" ", "+");
-
         HttpSession session = request.getSession();
+
+        String errorMessage = "errorMessage";
+        String verificationError = "验证码不正确";
+        String userIdError = "用户名不存在或未按照要求参加教学活动";
+        String passwordError = "密码错误";
+        String nullError = "学号和密码不得为空";
+
+        if(userId == null || password == null || "".equals(userId) || "".equals(password)){
+            session.setAttribute(errorMessage,"错误："+nullError);
+            System.err.println(session.getAttribute(errorMessage).toString() + "  " + new Date());
+            return session.getAttribute(errorMessage).toString();
+        }else {
+            password = password.replace(" ", "+");
+        }
+
 
         Map<String, String> loginPageCookies = null;
 
@@ -48,14 +63,14 @@ public class Login {
 
             loginPageCookies = fistResponse.cookies();
 
-
             viewstate = Jsoup.parse(fistResponse.body())
                     .getElementsByTag("input")
                     .get(0).attr("value");
 
         } catch (Exception e) {
-            session.setAttribute("errorMessage", "登陆失败，请稍后再试");
-            return session.getAttribute("errorMessage").toString();
+            session.setAttribute(errorMessage, "错误：登陆失败，请稍后再试");
+            System.err.println(session.getAttribute(errorMessage).toString() + "  " + new Date());
+            return session.getAttribute(errorMessage).toString();
         }
 
 
@@ -68,19 +83,13 @@ public class Login {
 
         byte[] gif = txtSecretCodeResponse.bodyAsBytes();
 
-        InputStream input = new ByteArrayInputStream(gif);
-
         Long fileName = System.currentTimeMillis();
 
-        GetVerification.savaImage(gif, getVerification.getVerificationPath(), fileName + ".gif");
+        GetVerification.saveImage(gif, verificationConfig.getCachingPath(), fileName + ".gif");
 
-        File txtSecretCodeFile = new File(getVerification.getVerificationPath() + fileName + ".gif");
+        File txtSecretCodeFile = new File(verificationConfig.getCachingPath() + fileName + ".gif");
 
         String txtSecretCode = getVerification.getVerification(txtSecretCodeFile);
-
-        if (txtSecretCodeFile.delete()) {
-            System.out.println("验证码识别完成");
-        }
 
         Map<String, String> loginInfo = new HashMap<>();
         loginInfo.put("__VIEWSTATE", viewstate);
@@ -102,39 +111,42 @@ public class Login {
                 .ignoreContentType(true)
                 .execute();
 
-        String verificationError = "验证码不正确";
-        String userIdError = "用户名不存在或未按照要求参加教学活动";
-        String passwordError = "密码错误";
-
         if (loginResponse.body().contains(userIdError)) {
-            session.setAttribute("errorMessage", userIdError);
+            session.setAttribute(errorMessage, "错误："+userIdError);
         } else if (loginResponse.body().contains(verificationError)) {
-            session.setAttribute("errorMessage", verificationError);
+            session.setAttribute(errorMessage, "错误："+verificationError);
         } else if (loginResponse.body().contains(passwordError)) {
-            session.setAttribute("errorMessage", passwordError);
+            session.setAttribute(errorMessage, "错误："+passwordError);
         } else {
-            session.setAttribute("errorMessage", null);
+            session.setAttribute(errorMessage, null);
         }
 
-        try {
-            String userName = Jsoup.parse(loginResponse.body())
-                    .getElementById("xhxm")
-                    .text();
+        if (session.getAttribute(errorMessage) == null){
+            try {
+                
+                String userName = Jsoup.parse(loginResponse.body())
+                        .getElementById("xhxm")
+                        .text();
 
-            userName = userName.substring(0, userName.length() - 2);
+                userName = userName.substring(0, userName.length() - 2);
 
-            session.setAttribute("userName", userName);
+                session.setAttribute("userName", userName);
 
-            session.setAttribute("loginPageCookies", loginPageCookies);
+                session.setAttribute("loginPageCookies", loginPageCookies);
 
-            System.out.println(session.getAttribute("userId")
-                    + "  " + session.getAttribute("userName")
-                    + " 登录于 " + new Date());
-            session.setAttribute("login", "true");
-            return session.getAttribute("userName").toString();
-        } catch (Exception e) {
-            System.err.println(session.getAttribute("errorMessage").toString() + "  " + new Date());
-            return session.getAttribute("errorMessage").toString();
+                System.out.println(session.getAttribute("userId")
+                        + "  " + session.getAttribute("userName")
+                        + " 登录于 " + new Date());
+                session.setAttribute("login", "true");
+                return session.getAttribute("userName").toString();
+            } catch (Exception e) {
+                session.setAttribute(errorMessage,"otherError");
+                System.err.println(session.getAttribute(errorMessage).toString() + "  " + new Date());
+                return session.getAttribute(errorMessage).toString();
+            }
+        }else {
+            System.err.println(session.getAttribute(errorMessage).toString() + "  " + new Date());
+            return session.getAttribute(errorMessage).toString();
         }
 
     }

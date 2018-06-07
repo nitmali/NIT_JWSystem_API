@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package com.jwxt.service.graphiccr;
+package com.jwxt.service.Verification;
 
-import org.springframework.core.io.ClassPathResource;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -34,8 +38,9 @@ import java.util.Objects;
  * 
  * @author By_syk
  */
+
+@Service
 public class GraphicC2Translator {
-    private static GraphicC2Translator translator = null;
     
     private BufferedImage trainImg = null;
     
@@ -70,16 +75,12 @@ public class GraphicC2Translator {
      * 无效像素颜色值
      */
     private static final int USELESS_COLOR = Color.WHITE.getRGB();
-    
+
+    @Resource
+    private VerificationConfig verificationConfig;
+
     private GraphicC2Translator() {}
-    
-    public static GraphicC2Translator getInstance() {
-        if (translator == null) {
-            translator = new GraphicC2Translator();
-        }
-        
-        return translator;
-    }
+
     
     /**
      * 去噪
@@ -127,9 +128,28 @@ public class GraphicC2Translator {
      * @return
      * @throws Exception
      */
+
     private BufferedImage loadTrainData() throws Exception {
         if (trainImg == null) {
-            trainImg = ImageIO.read(new ClassPathResource("static/service/graphiccr/train.png").getFile());
+            Connection.Response txtSecretCodeResponse = Jsoup
+                    .connect("http://127.0.0.1:10000/service/Verification/train.png")
+                    .method(Connection.Method.GET)
+                    .ignoreContentType(true)
+                    .execute();
+
+            byte[] png = txtSecretCodeResponse.bodyAsBytes();
+
+            String fileName = "train.png";
+
+            GetVerification.saveImage(png, verificationConfig.getCachingPath(), fileName);
+
+            File train = new File(verificationConfig.getCachingPath() + fileName);
+
+            trainImg = ImageIO.read(train);
+
+            if (train.delete()){
+                System.out.println("验证码识别完成");
+            }
         }
         
         return trainImg;

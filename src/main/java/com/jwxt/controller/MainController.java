@@ -2,20 +2,16 @@ package com.jwxt.controller;
 
 import com.jwxt.service.GetResult;
 import com.jwxt.service.Login;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
+import com.jwxt.service.Verification.VerificationConfig;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.util.Date;
-import java.util.Map;
 
 
 /**
- * @author nitmali@126.com
+ * @author me@nitmali.com
  * @date 2018/6/4 14:34
  */
 
@@ -28,15 +24,15 @@ public class MainController {
     private GetResult getResult;
 
     @GetMapping("/login")
-    public String jwxtLogin(HttpServletRequest request, String userId, String password) throws Exception{
+    public String systemLogin(HttpServletRequest request, String userId, String password) throws Exception {
         String loginMessage = null;
-
-        for (int numberOfLogin = 0;numberOfLogin < 3;numberOfLogin++){
-            loginMessage =  login.getLogin(request, userId, password);
-            if(numberOfLogin > 0){
-                System.out.println("第"+numberOfLogin+"次尝试重新登陆");
+        String verificationError = "验证码不正确";
+        for (int numberOfLogin = 0; numberOfLogin < 3; numberOfLogin++) {
+            if (numberOfLogin > 0) {
+                System.out.println("第" + numberOfLogin + "次尝试重新登陆");
             }
-            if(!loginMessage.equals("验证码不正确")){
+            loginMessage = login.getLogin(request, userId, password);
+            if (!loginMessage.contains(verificationError)) {
                 break;
             }
         }
@@ -45,12 +41,25 @@ public class MainController {
     }
 
     @GetMapping("/getResult")
-    public String getResult(HttpServletRequest request) throws Exception {
-
+    public String getResult(HttpServletRequest request) {
         try {
-            return  getResult.getResult(request);
-        }catch (Exception e){
-            return "请使用 /login?userId=userId&password=password 登录";
+            return getResult.getResult(request);
+        } catch (Exception e) {
+            return "请使用 /login?userId=学号&password=密码 登录";
         }
+    }
+
+    @GetMapping("/getResultDirect")
+    public String getResult(HttpServletRequest request, String userId, String password) throws Exception {
+        String loginMessage = systemLogin(request, userId, password);
+
+        String error = "错误";
+
+        if (!loginMessage.contains(error)) {
+            return getResult(request);
+        } else {
+            return loginMessage;
+        }
+
     }
 }

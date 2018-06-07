@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * @author nitmali@126.com
+ * @author me@nitmali.com
  * @date 2j18/6/6 20:47
  */
 
@@ -36,10 +36,11 @@ public class GetResult {
 
         Connection.Response cjResponse = Jsoup.connect
                 (
-                        "http://jwxt.nit.net.cn/xscjcx.aspx?xh="
+                        "http://jwxt.nit.net.cn/xscjcx.aspx?"
+                                + "xh="
                                 + session.getAttribute("userId")
-                                + "&xm="
-                                + session.getAttribute("userName")
+//                                + "&xm="
+//                                + session.getAttribute("userName")
                                 + "&gnmkdm=N1216j5"
                 )
                 .method(Connection.Method.GET)
