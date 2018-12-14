@@ -1,8 +1,7 @@
 package com.jwxt.controller;
 
 import com.jwxt.service.GetResult;
-import com.jwxt.service.Login;
-import com.jwxt.service.Verification.VerificationConfig;
+import com.jwxt.service.ILogInService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,16 +17,17 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class MainController {
     @Resource
-    private Login login;
+    private ILogInService login;
 
     @Resource
     private GetResult getResult;
 
     @GetMapping("/login")
     public String systemLogin(HttpServletRequest request, String userId, String password) throws Exception {
-        String loginMessage = null;
+        String loginMessage = null; 
         String verificationError = "验证码不正确";
-        for (int numberOfLogin = 0; numberOfLogin < 3; numberOfLogin++) {
+        int maxLogin = 3;
+        for (int numberOfLogin = 0; numberOfLogin < maxLogin; numberOfLogin++) {
             if (numberOfLogin > 0) {
                 System.out.println("第" + numberOfLogin + "次尝试重新登陆");
             }
@@ -42,6 +42,8 @@ public class MainController {
 
     @GetMapping("/getResult")
     public String getResult(HttpServletRequest request) {
+
+
         try {
             return getResult.getResult(request);
         } catch (Exception e) {
@@ -62,4 +64,12 @@ public class MainController {
         }
 
     }
+
+    @GetMapping("/getClassFrom")
+    public String getClassFrom(){
+        
+        return "getClassFrom";
+    }
+
+
 }

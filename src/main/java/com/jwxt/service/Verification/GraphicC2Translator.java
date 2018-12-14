@@ -16,6 +16,7 @@
 
 package com.jwxt.service.Verification;
 
+import com.jwxt.service.imbl.VerificationServiceImpl;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,7 +142,7 @@ public class GraphicC2Translator {
 
             String fileName = "train.png";
 
-            GetVerification.saveImage(png, verificationConfig.getCachingPath(), fileName);
+            VerificationServiceImpl.saveImage(png, verificationConfig.getCachingPath(), fileName);
 
             File train = new File(verificationConfig.getCachingPath() + fileName);
 
@@ -267,7 +268,7 @@ public class GraphicC2Translator {
      * @param picFile 图形验证码文件
      * @return
      */
-    String translate(File picFile) {
+    public String translate(File picFile) {
         String result = "";
         try {
             BufferedImage img = denoise(picFile);
