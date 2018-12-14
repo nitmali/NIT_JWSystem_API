@@ -1,6 +1,5 @@
 package com.jwxt.service.imbl;
 
-import com.jwxt.service.ILogInService;
 import com.jwxt.service.IVerificationService;
 import com.jwxt.service.Verification.GraphicC2Translator;
 import com.jwxt.service.Verification.VerificationConfig;
