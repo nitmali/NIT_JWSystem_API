@@ -2,6 +2,7 @@ package com.jwxt.service;
 
 import com.jwxt.service.Verification.GetVerification;
 import com.jwxt.service.Verification.VerificationConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,11 @@ import java.util.Map;
  * @date 2018/6/6 14:27
  */
 
+@Slf4j
 @Service
 public class Login {
 
+    private static final String CHECK_URL = "http://jwxt.nit.net.cn/CheckCode.aspx";
     @Resource
     private GetVerification getVerification;
 
@@ -75,7 +78,7 @@ public class Login {
 
 
         Connection.Response txtSecretCodeResponse = Jsoup
-                .connect("http://jwxt.nit.net.cn/CheckCode.aspx")
+                .connect(CHECK_URL)
                 .method(Connection.Method.GET)
                 .cookies(loginPageCookies)
                 .ignoreContentType(true)
@@ -83,7 +86,7 @@ public class Login {
 
         byte[] gif = txtSecretCodeResponse.bodyAsBytes();
 
-        Long fileName = System.currentTimeMillis();
+        long fileName = System.currentTimeMillis();
 
         GetVerification.saveImage(gif, verificationConfig.getCachingPath(), fileName + ".gif");
 
@@ -134,7 +137,7 @@ public class Login {
 
                 session.setAttribute("loginPageCookies", loginPageCookies);
 
-                System.out.println(session.getAttribute("userId")
+                log.info(session.getAttribute("userId")
                         + "  " + session.getAttribute("userName")
                         + " 登录于 " + new Date());
                 session.setAttribute("login", "true");
