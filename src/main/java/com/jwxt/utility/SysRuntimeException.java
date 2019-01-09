@@ -5,7 +5,7 @@ package com.jwxt.utility;
  * 主要保存运行时异常消息
  * PS：无堆栈信息
  *
- * @author mason
+ * @author mason nitmali
  */
 public class SysRuntimeException extends RuntimeException {
 
