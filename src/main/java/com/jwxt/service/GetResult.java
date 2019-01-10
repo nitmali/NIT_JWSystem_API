@@ -26,7 +26,7 @@ import java.util.Map;
 @Service
 public class GetResult {
 
-    public String getResult(HttpServletRequest request) throws IOException, JSONException {
+    public String getResult(HttpServletRequest request, String key) throws IOException, JSONException {
 
         HttpSession session = request.getSession();
 
@@ -105,7 +105,7 @@ public class GetResult {
 
         userJson.put("学号", session.getAttribute("userId"));
         userJson.put("姓名", session.getAttribute("userName"));
-        userJson.put("班级",className);
+        userJson.put("班级", className);
 
         jsonObjectArray.put(userJson);
         for (int i = 1; i < trs.size(); i++) {
