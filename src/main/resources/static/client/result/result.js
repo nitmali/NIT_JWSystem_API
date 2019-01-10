@@ -18,7 +18,7 @@ const resultApp = new Vue({
     methods: {
         getResult: function () {
             resultApp.loading = true;
-            $.get("http://127.0.0.1:10000/getResultDirect",
+            $.get("http://nitmali.com:10000/getResultDirect",
                 {
                     userId: resultApp.userId,
                     password: resultApp.password,
