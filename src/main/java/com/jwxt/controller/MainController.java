@@ -24,7 +24,7 @@ public class MainController {
 
     @GetMapping("/login")
     public String systemLogin(HttpServletRequest request, String userId, String password) throws Exception {
-        String loginMessage = null; 
+        String loginMessage = null;
         String verificationError = "验证码不正确";
         int maxLogin = 3;
         for (int numberOfLogin = 0; numberOfLogin < maxLogin; numberOfLogin++) {
@@ -41,24 +41,27 @@ public class MainController {
     }
 
     @GetMapping("/getResult")
-    public String getResult(HttpServletRequest request) {
-
+    public String getResult(HttpServletRequest request, String key) {
 
         try {
-            return getResult.getResult(request);
+            return getResult.getResult(request,key);
         } catch (Exception e) {
             return "请使用 /login?userId=学号&password=密码 登录";
         }
     }
 
     @GetMapping("/getResultDirect")
-    public String getResult(HttpServletRequest request, String userId, String password) throws Exception {
+    public String getResult(HttpServletRequest request, String userId, String password, String key) throws Exception {
         String loginMessage = systemLogin(request, userId, password);
 
         String error = "错误";
 
         if (!loginMessage.contains(error)) {
-            return getResult(request);
+            try {
+                return getResult.getResult(request, key);
+            } catch (Exception e) {
+                return "请使用 /login?userId=学号&password=密码 登录";
+            }
         } else {
             return loginMessage;
         }
@@ -67,7 +70,7 @@ public class MainController {
 
     @GetMapping("/getClassFrom")
     public String getClassFrom(){
-        
+
         return "getClassFrom";
     }
 

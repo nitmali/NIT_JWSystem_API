@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>查询成绩</title>
+</head>
+<body>
+<div id="result">
+    <label for="userId">学工账号：</label><input id="userId" v-model="userId">
+    <br>
+    <label for="password">学过密码：</label><input id="password" v-model="password">
+    <br>
+    <label for="key" placeholder="如：大学英语Ⅱ">&nbsp;&nbsp;&nbsp;关键词：</label><input id="key" v-model="key">
+    <br><br>
+    &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<button v-on:click="getResult">查询成绩</button>
+</div>
+</body>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
+<script src="../js/result.js"></script>
+</html>

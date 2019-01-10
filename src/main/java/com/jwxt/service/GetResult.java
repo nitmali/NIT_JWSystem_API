@@ -1,5 +1,7 @@
 package com.jwxt.service;
 
+import com.jwxt.utility.SysRuntimeException;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,10 +22,11 @@ import java.util.Map;
  * @date 2j18/6/6 20:47
  */
 
+@Slf4j
 @Service
 public class GetResult {
 
-    public String getResult(HttpServletRequest request) throws IOException, JSONException {
+    public String getResult(HttpServletRequest request, String key) throws IOException, JSONException {
 
         HttpSession session = request.getSession();
 
@@ -32,7 +35,6 @@ public class GetResult {
         if (session.getAttribute("errorMessage") != null) {
             return session.getAttribute("errorMessage").toString();
         }
-
 
         Connection.Response cjResponse = Jsoup.connect
                 (
@@ -53,9 +55,9 @@ public class GetResult {
         String className = Jsoup.parse(cjResponse.body())
                 .getElementById("lbl_xzb").text();
 
-        className = className.substring(4,className.length());
+        className = className.substring(4);
 
-        String VIEWSTATE = Jsoup.parse(cjResponse.body())
+        String viewState = Jsoup.parse(cjResponse.body())
                 .getElementsByTag("input")
                 .get(2).attr("value");
 
@@ -76,7 +78,7 @@ public class GetResult {
                         + "&gnmkdm=N1216j5")
                 .data("__EVENTTARGET", "",
                         "__EVENTARGUMENT", "",
-                        "__VIEWSTATE", VIEWSTATE,
+                        "__VIEWSTATE", viewState,
                         "hidLanguage", "",
                         "ddlXN", "",
                         "ddlXQ", "",
@@ -88,7 +90,7 @@ public class GetResult {
                 .ignoreContentType(true)
                 .execute();
 
-        System.out.println(session.getAttribute("userId")
+        log.info(session.getAttribute("userId")
                 + "  " + session.getAttribute("userName")
                 + " 于 " + new Date() + " 查询成绩 ");
 
@@ -103,7 +105,7 @@ public class GetResult {
 
         userJson.put("学号", session.getAttribute("userId"));
         userJson.put("姓名", session.getAttribute("userName"));
-        userJson.put("班级",className);
+        userJson.put("班级", className);
 
         jsonObjectArray.put(userJson);
         for (int i = 1; i < trs.size(); i++) {
