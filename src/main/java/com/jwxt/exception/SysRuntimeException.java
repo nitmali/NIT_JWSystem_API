@@ -1,4 +1,4 @@
-package com.jwxt.utility;
+package com.jwxt.exception;
 
 /**
  * 系统运行时异常类

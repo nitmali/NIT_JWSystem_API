@@ -1,7 +1,9 @@
 package com.jwxt.service.imbl;
 
+import com.jwxt.exception.SysRuntimeException;
 import com.jwxt.service.ILogInService;
 import com.jwxt.service.IVerificationService;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.util.Map;
  * @author me@nitmali.com
  * @date 2018/12/14 16:41
  */
+@Slf4j
 @Service
 public class ILoginServiceImpl implements ILogInService{
 
@@ -50,9 +53,8 @@ public class ILoginServiceImpl implements ILogInService{
         HttpSession session = httpServletRequest.getSession();
 
         if (userId == null || password == null || "".equals(userId) || "".equals(password)) {
-            session.setAttribute(ERROR_MESSAGE, "错误：" + ID_PASSWORD_NULL_ERROR);
-            System.err.println(session.getAttribute(ERROR_MESSAGE).toString() + "  " + new Date());
-            return session.getAttribute(ERROR_MESSAGE).toString();
+            log.error("错误：" + ID_PASSWORD_NULL_ERROR);
+            throw new SysRuntimeException("错误：" + ID_PASSWORD_NULL_ERROR);
         } else {
             password = password.replace(" ", "+");
         }
@@ -99,11 +101,13 @@ public class ILoginServiceImpl implements ILogInService{
                 .execute();
 
         if (loginResponse.body().contains(USER_ID_ERROR)) {
-            session.setAttribute(ERROR_MESSAGE, "错误：" + USER_ID_ERROR);
+            log.error("错误：" + USER_ID_ERROR);
+            throw new SysRuntimeException("错误：" + USER_ID_ERROR);
         } else if (loginResponse.body().contains(VERIFICATION_ERROR)) {
             session.setAttribute(ERROR_MESSAGE, "错误：" + VERIFICATION_ERROR);
         } else if (loginResponse.body().contains(PASSWORD_ERROR)) {
-            session.setAttribute(ERROR_MESSAGE, "错误：" + PASSWORD_ERROR);
+            log.error("错误：" + PASSWORD_ERROR);
+            throw new SysRuntimeException("错误：" + PASSWORD_ERROR);
         } else {
             session.setAttribute(ERROR_MESSAGE, null);
         }

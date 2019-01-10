@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>查询成绩</title>
+</head>
+<link href="result.css" rel="stylesheet"/>
+<body>
+<div id="result">
+    <label for="userId">学工账号：</label><input id="userId" v-model="userId" v-on:click="getInput">
+    <br>
+    <label for="password">学过密码：</label><input type="password" id="password" v-model="password" v-on:click="getInput">
+
+    <br><br>
+    &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<button v-on:click="getResult">查询成绩</button>
+    <br>
+    <span>{{student.userId + '  ' + student.name + '  ' + student.className}}</span>
+    <span v-show="loading">查询中。。。</span>
+    <span style="color: red">{{errorMessage}}</span>
+    <br><br>
+    <label for="key" >&nbsp;&nbsp;&nbsp;关键词：</label><input id="key" placeholder="如：大学英语Ⅱ" v-model="key">
+    <button v-on:click="searchResult">搜索</button>
+    <br>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="th-sm">序号&emsp;</th>
+            <th class="th-sm">课程名称&emsp;</th>
+            <th class="th-sm">课程性质&emsp;</th>
+            <th class="th-sm">成绩&emsp;</th>
+            <th class="th-sm">绩点&emsp;</th>
+            <th class="th-sm">学分&emsp;</th>
+            <th class="th-sm">学年&emsp;&emsp;&emsp;&emsp;</th>
+            <th class="th-sm">学期&emsp;</th>
+            <th class="th-sm">重修标记&emsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(result,index) in resultList">
+            <td>{{index}}</td>
+            <td>{{result.课程名称}}</td>
+            <td>{{result.课程性质}}</td>
+            <td>{{result.成绩}}</td>
+            <td>{{result.绩点}}</td>
+            <td>{{result.学分}}</td>
+            <td>{{result.学年}}</td>
+            <td>{{result.学期}}</td>
+            <td>{{result.重修标记}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
+<script src="result.js"></script>
+</html>

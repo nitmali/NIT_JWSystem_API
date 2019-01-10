@@ -1,7 +1,9 @@
 package com.jwxt.controller;
 
+import com.jwxt.bean.Response;
 import com.jwxt.service.GetResult;
 import com.jwxt.service.ILogInService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2018/6/4 14:34
  */
 
+@CrossOrigin
 @RestController
 public class MainController {
     @Resource
@@ -41,29 +44,29 @@ public class MainController {
     }
 
     @GetMapping("/getResult")
-    public String getResult(HttpServletRequest request, String key) {
+    public Response getResult(HttpServletRequest request, String key) {
 
         try {
-            return getResult.getResult(request,key);
+            return new Response().success(getResult.getResult(request,key));
         } catch (Exception e) {
-            return "请使用 /login?userId=学号&password=密码 登录";
+            return new Response().failure("请使用 /login?userId=学号&password=密码 登录", 201);
         }
     }
 
     @GetMapping("/getResultDirect")
-    public String getResult(HttpServletRequest request, String userId, String password, String key) throws Exception {
+    public Response getResult(HttpServletRequest request, String userId, String password, String key) throws Exception {
         String loginMessage = systemLogin(request, userId, password);
 
         String error = "错误";
 
         if (!loginMessage.contains(error)) {
             try {
-                return getResult.getResult(request, key);
+                return new Response().success(getResult.getResult(request, key));
             } catch (Exception e) {
-                return "请使用 /login?userId=学号&password=密码 登录";
+                return new Response().failure("请使用 /login?userId=学号&password=密码 登录", 201);
             }
         } else {
-            return loginMessage;
+            return new Response().success(loginMessage);
         }
 
     }

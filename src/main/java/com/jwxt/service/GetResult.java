@@ -1,21 +1,18 @@
 package com.jwxt.service;
 
-import com.jwxt.utility.SysRuntimeException;
+import com.jwxt.exception.SysRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author me@nitmali.com
@@ -26,14 +23,14 @@ import java.util.Map;
 @Service
 public class GetResult {
 
-    public String getResult(HttpServletRequest request, String key) throws IOException, JSONException {
+    public List<Map<String, String>> getResult(HttpServletRequest request, String key) throws IOException, JSONException {
 
         HttpSession session = request.getSession();
 
         Map<String, String> loginPageCookies = (Map<String, String>) session.getAttribute("loginPageCookies");
 
         if (session.getAttribute("errorMessage") != null) {
-            return session.getAttribute("errorMessage").toString();
+            throw new SysRuntimeException(session.getAttribute("errorMessage").toString());
         }
 
         Connection.Response cjResponse = Jsoup.connect
@@ -100,28 +97,32 @@ public class GetResult {
 
         Elements trs = getTable.select("tr");
 
-        JSONArray jsonObjectArray = new JSONArray();
-        JSONObject userJson = new JSONObject();
 
-        userJson.put("学号", session.getAttribute("userId"));
-        userJson.put("姓名", session.getAttribute("userName"));
-        userJson.put("班级", className);
+        List<Map<String, String>> resultMapList = new ArrayList<>();
+        Map<String, String> userMap= new HashMap<>();
 
-        jsonObjectArray.put(userJson);
+        userMap.put("userId", session.getAttribute("userId").toString());
+        userMap.put("name", session.getAttribute("userName").toString());
+        userMap.put("className", className);
+
+        resultMapList.add(userMap);
         for (int i = 1; i < trs.size(); i++) {
             Elements tds = trs.get(i).select("td");
-            JSONObject jsonObject = new JSONObject();
+            Map<String, String> resultMap= new HashMap<>();
 
             for (int j = 0; j < tds.size(); j++) {
-                jsonObject.put(
+                resultMap.put(
                         trs.get(0).select("td").get(j).text(),
                         tds.get(j).text()
                 );
             }
-            jsonObjectArray.put(jsonObject);
+//            if (key != null && !"".equals(key) && resultMap.get("课程名称").contains(key)) {
+//                resultMapList.add(resultMap);
+//            }
+            resultMapList.add(resultMap);
         }
 
-        return jsonObjectArray.toString();
+        return resultMapList;
     }
 
 }
