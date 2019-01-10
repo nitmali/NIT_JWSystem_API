@@ -3,6 +3,7 @@ package com.jwxt.service.imbl;
 import com.jwxt.service.IVerificationService;
 import com.jwxt.service.Verification.GraphicC2Translator;
 import com.jwxt.service.Verification.VerificationConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.Map;
  * @date 2018/12/14 15:47
  */
 @Service
+@Slf4j
 public class VerificationServiceImpl implements IVerificationService {
 
     @Resource
@@ -55,7 +57,7 @@ public class VerificationServiceImpl implements IVerificationService {
             bos = new BufferedOutputStream(fos);
             bos.write(img);
         } catch (FileNotFoundException e) {
-            System.err.println("文件无法找到 ：" + filePath + fileName);
+            log.error("文件无法找到 ：" + filePath + fileName);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

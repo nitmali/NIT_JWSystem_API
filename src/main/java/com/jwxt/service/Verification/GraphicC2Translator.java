@@ -17,9 +17,9 @@
 package com.jwxt.service.Verification;
 
 import com.jwxt.service.imbl.VerificationServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -41,6 +41,7 @@ import java.util.Objects;
  */
 
 @Service
+@Slf4j
 public class GraphicC2Translator {
     
     private BufferedImage trainImg = null;
@@ -149,7 +150,7 @@ public class GraphicC2Translator {
             trainImg = ImageIO.read(train);
 
             if (train.delete()){
-                System.out.println("验证码识别完成");
+                log.info("验证码识别完成");
             }
         }
         

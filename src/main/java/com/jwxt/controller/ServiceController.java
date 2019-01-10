@@ -3,6 +3,7 @@ package com.jwxt.controller;
 import com.jwxt.bean.Response;
 import com.jwxt.service.GetResult;
 import com.jwxt.service.ILogInService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2018/6/4 14:34
  */
 
+@Slf4j
 @CrossOrigin
 @RestController
 public class ServiceController {
@@ -32,7 +34,7 @@ public class ServiceController {
         int maxLogin = 3;
         for (int numberOfLogin = 0; numberOfLogin < maxLogin; numberOfLogin++) {
             if (numberOfLogin > 0) {
-                System.out.println("第" + numberOfLogin + "次尝试重新登陆");
+                log.info("第" + numberOfLogin + "次尝试重新登陆");
             }
             loginMessage = login.getLogin(request, userId, password);
             if (!loginMessage.contains(verificationError)) {

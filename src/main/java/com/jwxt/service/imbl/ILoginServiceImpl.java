@@ -82,7 +82,7 @@ public class ILoginServiceImpl implements ILogInService{
 
         } catch (Exception e) {
             session.setAttribute(ERROR_MESSAGE, "错误：登陆失败，请稍后再试");
-            System.err.println(session.getAttribute(ERROR_MESSAGE).toString() + "  " + new Date());
+            log.error(session.getAttribute(ERROR_MESSAGE).toString() + "  " + new Date());
             return session.getAttribute(ERROR_MESSAGE).toString();
         }
 
@@ -125,18 +125,18 @@ public class ILoginServiceImpl implements ILogInService{
 
                 session.setAttribute("loginPageCookies", loginPageCookies);
 
-                System.out.println(session.getAttribute("userId")
+                log.info(session.getAttribute("userId")
                         + "  " + session.getAttribute("userName")
                         + " 登录于 " + new Date());
                 session.setAttribute("login", "true");
                 return session.getAttribute("userName").toString();
             } catch (Exception e) {
                 session.setAttribute(ERROR_MESSAGE, "otherError");
-                System.err.println(session.getAttribute(ERROR_MESSAGE).toString() + "  " + new Date());
+                log.error(session.getAttribute(ERROR_MESSAGE).toString() + "  " + new Date());
                 return session.getAttribute(ERROR_MESSAGE).toString();
             }
         } else {
-            System.err.println(session.getAttribute(ERROR_MESSAGE).toString() + "  " + new Date());
+            log.error(session.getAttribute(ERROR_MESSAGE).toString() + "  " + new Date());
             return session.getAttribute(ERROR_MESSAGE).toString();
         }
     }
