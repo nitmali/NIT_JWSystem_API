@@ -1,8 +1,10 @@
 package com.jwxt.controller;
 
 import com.jwxt.bean.Response;
-import com.jwxt.service.GetResult;
+import com.jwxt.exception.SysRuntimeException;
+import com.jwxt.service.imbl.IGetResultServiceImpl;
 import com.jwxt.service.ILogInService;
+import com.jwxt.service.Verification.GraphicC2Translator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,36 +24,42 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class ServiceController {
     @Resource
-    private ILogInService login;
+    private GraphicC2Translator graphicC2Translator;
 
     @Resource
-    private GetResult getResult;
+    private ILogInService iLogInService;
+
+    @Resource
+    private IGetResultServiceImpl iGetResultService;
 
     @GetMapping("/login")
     public String systemLogin(HttpServletRequest request, String userId, String password) throws Exception {
         String loginMessage = null;
         String verificationError = "验证码不正确";
-        int maxLogin = 3;
-        for (int numberOfLogin = 0; numberOfLogin < maxLogin; numberOfLogin++) {
+        int maxLogin = 9;
+        for (int numberOfLogin = 0; numberOfLogin <= maxLogin; numberOfLogin++) {
             if (numberOfLogin > 0) {
                 log.info("第" + numberOfLogin + "次尝试重新登陆");
             }
-            loginMessage = login.getLogin(request, userId, password);
+            loginMessage = iLogInService.getLogin(request, userId, password);
             if (!loginMessage.contains(verificationError)) {
                 break;
             }
         }
-
-        return loginMessage;
+        if (!loginMessage.contains(verificationError)) {
+            return loginMessage;
+        } else {
+            throw new SysRuntimeException("验证码错误请重新登陆");
+        }
     }
 
     @GetMapping("/getResult")
     public Response getResult(HttpServletRequest request, String key) {
 
         try {
-            return new Response().success(getResult.getResult(request,key));
+            return new Response().success(iGetResultService.getResult(request,key));
         } catch (Exception e) {
-            return new Response().failure("请使用 /login?userId=学号&password=密码 登录", 201);
+            throw new SysRuntimeException("请使用 /login?userId=学号&password=密码 登录");
         }
     }
 
@@ -63,9 +71,9 @@ public class ServiceController {
 
         if (!loginMessage.contains(error)) {
             try {
-                return new Response().success(getResult.getResult(request, key));
+                return new Response().success(iGetResultService.getResult(request, key));
             } catch (Exception e) {
-                return new Response().failure("请使用 /login?userId=学号&password=密码 登录", 201);
+                throw new SysRuntimeException("请使用 /login?userId=学号&password=密码 登录");
             }
         } else {
             return new Response().success(loginMessage);
@@ -77,6 +85,11 @@ public class ServiceController {
     public String getClassFrom(){
 
         return "getClassFrom";
+    }
+
+    @GetMapping("/train")
+    public Response train() {
+        return new Response().success(graphicC2Translator.train());
     }
 
 

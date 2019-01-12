@@ -1,5 +1,7 @@
 package com.jwxt.service.Verification;
 
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
@@ -11,15 +13,14 @@ import org.springframework.stereotype.Service;
  */
 @ConfigurationProperties(prefix = "verification")
 @Service
+@Data
 public class VerificationConfig {
 
     private String cachingPath = "caching-path";
 
-    public String getCachingPath() {
-        return cachingPath;
-    }
+    private String errorCachingPath = "error-caching-path";
 
-    public void setCachingPath(String cachingPath) {
-        this.cachingPath = cachingPath;
-    }
+    private String targetTrainFilePath = "src/main/resources/static/verification/targetTrain.png";
+
+    private String targetPath = "src/main/resources/static/verification/caching";
 }

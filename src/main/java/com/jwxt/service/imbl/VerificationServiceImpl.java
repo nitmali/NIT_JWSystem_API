@@ -9,6 +9,8 @@ import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Map;
 
@@ -21,10 +23,9 @@ import java.util.Map;
 public class VerificationServiceImpl implements IVerificationService {
 
     @Resource
-    private VerificationConfig verificationConfig;
-
-    @Resource
     private GraphicC2Translator graphicC2Translator;
+
+    public static byte[] getGif;
 
     @Override
     public String getVerificationCode(Map<String, String> loginPageCookies) throws IOException {
@@ -37,13 +38,13 @@ public class VerificationServiceImpl implements IVerificationService {
 
         byte[] gif = txtSecretCodeResponse.bodyAsBytes();
 
-        Long fileName = System.currentTimeMillis();
+        getGif = gif;
 
-        saveImage(gif, verificationConfig.getCachingPath(), fileName + ".gif");
+        ByteArrayInputStream in = new ByteArrayInputStream(gif);
 
-        File txtSecretCodeFile = new File(verificationConfig.getCachingPath() + fileName + ".gif");
+        BufferedImage image = ImageIO.read(in);
 
-        return graphicC2Translator.translate(txtSecretCodeFile);
+        return graphicC2Translator.translate(image);
     }
 
     public static void saveImage(byte[] img, String filePath, String fileName) {

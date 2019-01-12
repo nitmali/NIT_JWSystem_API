@@ -26,6 +26,7 @@ import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,6 +94,21 @@ public class GraphicC2Translator {
      */
     private BufferedImage denoise(File picFile) throws Exception {
         BufferedImage img = ImageIO.read(picFile);
+        return doDenoise(img);
+    }
+
+    /**
+     * 去噪
+     *
+     * @param img 图形验证码文件流
+     * @return
+     * @throws Exception
+     */
+    private BufferedImage denoise(BufferedImage img) throws Exception {
+        return doDenoise(img);
+    }
+
+    private BufferedImage doDenoise(BufferedImage img) {
         int width = img.getWidth();
         int height = img.getHeight();
         final int TARGET = 0xff000099;
@@ -134,24 +150,16 @@ public class GraphicC2Translator {
     private BufferedImage loadTrainData() throws Exception {
         if (trainImg == null) {
             Connection.Response txtSecretCodeResponse = Jsoup
-                    .connect("http://127.0.0.1:10000/service/Verification/train.png")
+                    .connect("http://127.0.0.1:10000/verification/train.png")
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .execute();
 
             byte[] png = txtSecretCodeResponse.bodyAsBytes();
 
-            String fileName = "train.png";
+            ByteArrayInputStream in = new ByteArrayInputStream(png);
 
-            VerificationServiceImpl.saveImage(png, verificationConfig.getCachingPath(), fileName);
-
-            File train = new File(verificationConfig.getCachingPath() + fileName);
-
-            trainImg = ImageIO.read(train);
-
-            if (train.delete()){
-                log.info("验证码识别完成");
-            }
+            trainImg = ImageIO.read(in);
         }
         
         return trainImg;
@@ -166,6 +174,10 @@ public class GraphicC2Translator {
      * @return
      */
     private void addTrainImg(BufferedImage trainImg, BufferedImage smallImg, char ch) {
+        if (recognize(smallImg, trainImg) == ch) {
+            return;
+        }
+
         int which = Arrays.binarySearch(TRAIN_CHARS, ch);
         int x = -1;
         int y = -1;
@@ -191,14 +203,12 @@ public class GraphicC2Translator {
 
     /**
      * 训练
-     * 
-     * @param rawDir
-     * @param targetTrainFile
-     * @return
      */
-    public boolean train(File rawDir, File targetTrainFile) {
+    public boolean train() {
+        File targetTrainFile = new File(verificationConfig.getTargetTrainFilePath());
+        File rawDir = new File(verificationConfig.getTargetPath());
         try {
-            BufferedImage trainImg = new BufferedImage(UNIT_W * TRAIN_NUM, (UNIT_H + 1) * TRAIN_CHARS.length, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage trainImg = ImageIO.read(targetTrainFile);
             for (File file : Objects.requireNonNull(rawDir.listFiles())) {
                 BufferedImage img = denoise(file);
                 List<BufferedImage> listImg = split(img);
@@ -220,7 +230,7 @@ public class GraphicC2Translator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         return false;
     }
 
@@ -270,17 +280,37 @@ public class GraphicC2Translator {
      * @return
      */
     public String translate(File picFile) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         try {
             BufferedImage img = denoise(picFile);
             List<BufferedImage> listImg = split(img);
             BufferedImage trainImg = loadTrainData();
             for (BufferedImage bi : listImg) {
-                result += recognize(bi, trainImg);
+                result.append(recognize(bi, trainImg));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return result;
+        return result.toString();
+    }
+
+    /**
+     * 识别
+     *
+     * @param img 图形验证码流
+     * @return
+     */
+    public String translate(BufferedImage img) {
+        StringBuilder result = new StringBuilder();
+        try {
+            List<BufferedImage> listImg = split(denoise(img));
+            BufferedImage trainImg = loadTrainData();
+            for (BufferedImage bi : listImg) {
+                result.append(recognize(bi, trainImg));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result.toString();
     }
 }

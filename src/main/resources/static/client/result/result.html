@@ -14,12 +14,13 @@
     <br><br>
     &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<button v-on:click="getResult">查询成绩</button>
     <br>
-    <span>{{student.userId + '  ' + student.name + '  ' + student.className}}</span>
+    <span v-show="student.userId">{{student.userId + '  ' + student.name + '  ' + student.className + '  平均绩点：' + student.achievementAvg}}</span>
     <span v-show="loading">查询中。。。</span>
     <span style="color: red">{{errorMessage}}</span>
     <br><br>
-    <label for="key" >&nbsp;&nbsp;&nbsp;关键词：</label><input id="key" placeholder="如：大学英语Ⅱ" v-model="key">
-    <button v-on:click="searchResult">搜索</button>
+    <label for="key" >关键词：</label><input id="key" placeholder="如：大学英语Ⅱ" v-model="key"><button v-on:click="searchResult" class="lm-sm">搜索</button>
+
+    <label for="again" class="lm-md" >是否重修：</label><input id="again" type="checkbox" name="vehicle" value="Bike" v-model="again" />
     <br>
     <table class="table table-hover">
         <thead>

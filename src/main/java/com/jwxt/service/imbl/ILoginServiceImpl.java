@@ -3,6 +3,7 @@ package com.jwxt.service.imbl;
 import com.jwxt.exception.SysRuntimeException;
 import com.jwxt.service.ILogInService;
 import com.jwxt.service.IVerificationService;
+import com.jwxt.service.Verification.VerificationConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -45,6 +46,9 @@ public class ILoginServiceImpl implements ILogInService{
 
     @Resource
     private IVerificationService iVerificationService;
+
+    @Resource
+    private VerificationConfig verificationConfig;
 
     @Override
     public String getLogin(HttpServletRequest httpServletRequest, String userId, String password) throws IOException {
@@ -104,11 +108,13 @@ public class ILoginServiceImpl implements ILogInService{
             log.error("错误：" + USER_ID_ERROR);
             throw new SysRuntimeException("错误：" + USER_ID_ERROR);
         } else if (loginResponse.body().contains(VERIFICATION_ERROR)) {
+            VerificationServiceImpl.saveImage(VerificationServiceImpl.getGif,verificationConfig.getErrorCachingPath(), txtSecretCode + ".gif");
             session.setAttribute(ERROR_MESSAGE, "错误：" + VERIFICATION_ERROR);
         } else if (loginResponse.body().contains(PASSWORD_ERROR)) {
             log.error("错误：" + PASSWORD_ERROR);
             throw new SysRuntimeException("错误：" + PASSWORD_ERROR);
         } else {
+            VerificationServiceImpl.saveImage(VerificationServiceImpl.getGif,verificationConfig.getCachingPath(), txtSecretCode + ".gif");
             session.setAttribute(ERROR_MESSAGE, null);
         }
 
