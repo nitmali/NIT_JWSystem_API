@@ -4,7 +4,7 @@ import com.jwxt.bean.Response;
 import com.jwxt.exception.SysRuntimeException;
 import com.jwxt.service.imbl.IGetResultServiceImpl;
 import com.jwxt.service.ILogInService;
-import com.jwxt.service.Verification.GraphicC2Translator;
+import com.jwxt.utils.VerificationTool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class ServiceController {
     @Resource
-    private GraphicC2Translator graphicC2Translator;
+    private VerificationTool verificationTool;
 
     @Resource
     private ILogInService iLogInService;
@@ -89,7 +89,7 @@ public class ServiceController {
 
     @GetMapping("/train")
     public Response train() {
-        return new Response().success(graphicC2Translator.train());
+        return new Response().success(verificationTool.train());
     }
 
 

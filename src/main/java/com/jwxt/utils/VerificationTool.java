@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.jwxt.service.Verification;
+package com.jwxt.utils;
 
-import com.jwxt.service.imbl.VerificationServiceImpl;
+import com.jwxt.config.VerificationConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -26,8 +26,7 @@ import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +42,7 @@ import java.util.Objects;
 
 @Service
 @Slf4j
-public class GraphicC2Translator {
+public class VerificationTool {
     
     private BufferedImage trainImg = null;
     
@@ -82,9 +81,8 @@ public class GraphicC2Translator {
     @Resource
     private VerificationConfig verificationConfig;
 
-    private GraphicC2Translator() {}
+    private VerificationTool() {}
 
-    
     /**
      * 去噪
      * 
@@ -92,23 +90,23 @@ public class GraphicC2Translator {
      * @return
      * @throws Exception
      */
-    private BufferedImage denoise(File picFile) throws Exception {
+    private BufferedImage deNoise(File picFile) throws IOException {
         BufferedImage img = ImageIO.read(picFile);
-        return doDenoise(img);
+        return doDeNoise(img);
     }
 
     /**
      * 去噪
      *
      * @param img 图形验证码文件流
-     * @return
+     * @return BufferedImage
      * @throws Exception
      */
-    private BufferedImage denoise(BufferedImage img) throws Exception {
-        return doDenoise(img);
+    private BufferedImage deNoise(BufferedImage img) {
+        return doDeNoise(img);
     }
 
-    private BufferedImage doDenoise(BufferedImage img) {
+    private BufferedImage doDeNoise(BufferedImage img) {
         int width = img.getWidth();
         int height = img.getHeight();
         final int TARGET = 0xff000099;
@@ -131,7 +129,7 @@ public class GraphicC2Translator {
      * @return
      * @throws Exception
      */
-    private List<BufferedImage> split(BufferedImage img) throws Exception {
+    private List<BufferedImage> split(BufferedImage img) {
         List<BufferedImage> subImgs = new ArrayList<BufferedImage>();
         subImgs.add(img.getSubimage(4, 0, UNIT_W, UNIT_H));
         subImgs.add(img.getSubimage(16, 0, UNIT_W, UNIT_H));
@@ -202,39 +200,6 @@ public class GraphicC2Translator {
     }
 
     /**
-     * 训练
-     */
-    public boolean train() {
-        File targetTrainFile = new File(verificationConfig.getTargetTrainFilePath());
-        File rawDir = new File(verificationConfig.getTargetPath());
-        try {
-            BufferedImage trainImg = ImageIO.read(targetTrainFile);
-            for (File file : Objects.requireNonNull(rawDir.listFiles())) {
-                BufferedImage img = denoise(file);
-                List<BufferedImage> listImg = split(img);
-                String[] parts = file.getName().split("\\.");
-                char[] chars = parts[0].toCharArray();
-                char[] addFlags;
-                if (parts.length > 2) {
-                    addFlags = parts[1].toCharArray();
-                } else {
-                    addFlags = new char[]{'1', '1', '1', '1'};
-                }
-                for (int i = 0, len = listImg.size(); i < len; ++i) {
-                    if (addFlags[i] == '1') {
-                        addTrainImg(trainImg, listImg.get(i), chars[i]);
-                    }
-                }
-            }
-            return ImageIO.write(trainImg, "PNG", targetTrainFile);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    /**
      * 单元识别
      * 
      * @param img
@@ -282,7 +247,7 @@ public class GraphicC2Translator {
     public String translate(File picFile) {
         StringBuilder result = new StringBuilder();
         try {
-            BufferedImage img = denoise(picFile);
+            BufferedImage img = deNoise(picFile);
             List<BufferedImage> listImg = split(img);
             BufferedImage trainImg = loadTrainData();
             for (BufferedImage bi : listImg) {
@@ -303,7 +268,7 @@ public class GraphicC2Translator {
     public String translate(BufferedImage img) {
         StringBuilder result = new StringBuilder();
         try {
-            List<BufferedImage> listImg = split(denoise(img));
+            List<BufferedImage> listImg = split(deNoise(img));
             BufferedImage trainImg = loadTrainData();
             for (BufferedImage bi : listImg) {
                 result.append(recognize(bi, trainImg));
@@ -312,5 +277,38 @@ public class GraphicC2Translator {
             e.printStackTrace();
         }
         return result.toString();
+    }
+
+    /**
+     * 训练
+     */
+    public boolean train() {
+        File targetTrainFile = new File(verificationConfig.getTargetTrainFilePath());
+        File rawDir = new File(verificationConfig.getTargetPath());
+        try {
+            BufferedImage trainImg = ImageIO.read(targetTrainFile);
+            for (File file : Objects.requireNonNull(rawDir.listFiles())) {
+                BufferedImage img = deNoise(file);
+                List<BufferedImage> listImg = split(img);
+                String[] parts = file.getName().split("\\.");
+                char[] chars = parts[0].toCharArray();
+                char[] addFlags;
+                if (parts.length > 2) {
+                    addFlags = parts[1].toCharArray();
+                } else {
+                    addFlags = new char[]{'1', '1', '1', '1'};
+                }
+                for (int i = 0, len = listImg.size(); i < len; ++i) {
+                    if (addFlags[i] == '1') {
+                        addTrainImg(trainImg, listImg.get(i), chars[i]);
+                    }
+                }
+            }
+            return ImageIO.write(trainImg, "PNG", targetTrainFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

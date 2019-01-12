@@ -3,7 +3,7 @@ package com.jwxt.service.imbl;
 import com.jwxt.exception.SysRuntimeException;
 import com.jwxt.service.ILogInService;
 import com.jwxt.service.IVerificationService;
-import com.jwxt.service.Verification.VerificationConfig;
+import com.jwxt.config.VerificationConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;

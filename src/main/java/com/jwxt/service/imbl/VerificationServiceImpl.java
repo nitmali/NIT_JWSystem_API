@@ -1,12 +1,12 @@
 package com.jwxt.service.imbl;
 
 import com.jwxt.service.IVerificationService;
-import com.jwxt.service.Verification.GraphicC2Translator;
-import com.jwxt.service.Verification.VerificationConfig;
+import com.jwxt.utils.VerificationTool;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -18,12 +18,13 @@ import java.util.Map;
  * @author me@nitmali.com
  * @date 2018/12/14 15:47
  */
-@Service
+@Component
 @Slf4j
+@Scope("prototype")
 public class VerificationServiceImpl implements IVerificationService {
 
     @Resource
-    private GraphicC2Translator graphicC2Translator;
+    private VerificationTool verificationTool;
 
     public static byte[] getGif;
 
@@ -44,7 +45,7 @@ public class VerificationServiceImpl implements IVerificationService {
 
         BufferedImage image = ImageIO.read(in);
 
-        return graphicC2Translator.translate(image);
+        return verificationTool.translate(image);
     }
 
     public static void saveImage(byte[] img, String filePath, String fileName) {
