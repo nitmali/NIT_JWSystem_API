@@ -40,8 +40,6 @@ public class IGetResultServiceImpl implements IGetResultService {
                         "http://jwxt.nit.net.cn/xscjcx.aspx?"
                                 + "xh="
                                 + session.getAttribute("userId")
-//                                + "&xm="
-//                                + session.getAttribute("userName")
                                 + "&gnmkdm=N1216j5"
                 )
                 .method(Connection.Method.GET)
@@ -132,7 +130,7 @@ public class IGetResultServiceImpl implements IGetResultService {
             }
             resultMapList.add(resultMap);
         }
-        Double achievementAvg = achievementSum /classSum;
+        Double achievementAvg = achievementSum / classSum;
         achievementAvg = Math.round(achievementAvg * 100) / 100.0;
         resultMapList.get(0).put("achievementAvg", achievementAvg.toString());
         return resultMapList;

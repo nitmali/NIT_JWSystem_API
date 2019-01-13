@@ -57,7 +57,7 @@ public class ServiceController {
     public Response getResult(HttpServletRequest request, String key) {
 
         try {
-            return new Response().success(iGetResultService.getResult(request,key));
+            return new Response().success(iGetResultService.getResult(request, key));
         } catch (Exception e) {
             throw new SysRuntimeException("请使用 /login?userId=学号&password=密码 登录");
         }
@@ -82,7 +82,7 @@ public class ServiceController {
     }
 
     @GetMapping("/getClassFrom")
-    public String getClassFrom(){
+    public String getClassFrom() {
 
         return "getClassFrom";
     }
