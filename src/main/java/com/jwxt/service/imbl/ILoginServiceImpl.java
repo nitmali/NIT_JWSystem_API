@@ -1,9 +1,9 @@
 package com.jwxt.service.imbl;
 
+import com.jwxt.config.VerificationConfig;
 import com.jwxt.exception.SysRuntimeException;
 import com.jwxt.service.ILogInService;
 import com.jwxt.service.IVerificationService;
-import com.jwxt.config.VerificationConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -57,7 +57,6 @@ public class ILoginServiceImpl implements ILogInService{
         HttpSession session = httpServletRequest.getSession();
 
         if (userId == null || password == null || "".equals(userId) || "".equals(password)) {
-            log.error("错误：" + ID_PASSWORD_NULL_ERROR);
             throw new SysRuntimeException("错误：" + ID_PASSWORD_NULL_ERROR);
         } else {
             password = password.replace(" ", "+");
@@ -85,9 +84,7 @@ public class ILoginServiceImpl implements ILogInService{
                     .get(0).attr("value");
 
         } catch (Exception e) {
-            session.setAttribute(ERROR_MESSAGE, "错误：登陆失败，请稍后再试");
-            log.error(session.getAttribute(ERROR_MESSAGE).toString() + "  " + new Date());
-            return session.getAttribute(ERROR_MESSAGE).toString();
+            throw new SysRuntimeException("错误：登陆失败，请稍后再试");
         }
 
 
@@ -105,13 +102,11 @@ public class ILoginServiceImpl implements ILogInService{
                 .execute();
 
         if (loginResponse.body().contains(USER_ID_ERROR)) {
-            log.error("错误：" + USER_ID_ERROR);
             throw new SysRuntimeException("错误：" + USER_ID_ERROR);
         } else if (loginResponse.body().contains(VERIFICATION_ERROR)) {
             VerificationServiceImpl.saveImage(VerificationServiceImpl.getGif,verificationConfig.getErrorCachingPath(), txtSecretCode + ".gif");
             session.setAttribute(ERROR_MESSAGE, "错误：" + VERIFICATION_ERROR);
         } else if (loginResponse.body().contains(PASSWORD_ERROR)) {
-            log.error("错误：" + PASSWORD_ERROR);
             throw new SysRuntimeException("错误：" + PASSWORD_ERROR);
         } else {
             VerificationServiceImpl.saveImage(VerificationServiceImpl.getGif,verificationConfig.getCachingPath(), txtSecretCode + ".gif");
@@ -137,9 +132,7 @@ public class ILoginServiceImpl implements ILogInService{
                 session.setAttribute("login", "true");
                 return session.getAttribute("userName").toString();
             } catch (Exception e) {
-                session.setAttribute(ERROR_MESSAGE, "otherError");
-                log.error(session.getAttribute(ERROR_MESSAGE).toString() + "  " + new Date());
-                return session.getAttribute(ERROR_MESSAGE).toString();
+                throw new SysRuntimeException("otherError");
             }
         } else {
             log.error(session.getAttribute(ERROR_MESSAGE).toString() + "  " + new Date());

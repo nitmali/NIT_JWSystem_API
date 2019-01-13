@@ -1,13 +1,11 @@
 package com.jwxt.service.imbl;
 
-import com.jwxt.exception.SysRuntimeException;
 import com.jwxt.service.IGetResultService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,11 +29,7 @@ public class IGetResultServiceImpl implements IGetResultService {
 
         Map<String, String> loginPageCookies = (Map<String, String>) session.getAttribute("loginPageCookies");
 
-        if (session.getAttribute("errorMessage") != null) {
-            throw new SysRuntimeException(session.getAttribute("errorMessage").toString());
-        }
-
-        Connection.Response cjResponse = Jsoup.connect
+        Connection.Response resultResponse = Jsoup.connect
                 (
                         "http://jwxt.nit.net.cn/xscjcx.aspx?"
                                 + "xh="
@@ -43,26 +37,24 @@ public class IGetResultServiceImpl implements IGetResultService {
                                 + "&gnmkdm=N1216j5"
                 )
                 .method(Connection.Method.GET)
-                .header("Referer", "http://jwxt.nit.net.cn/xs_main.aspx?xh="
-                        + session.getAttribute("userId"))
+                .header("Referer", "http://jwxt.nit.net.cn/xs_main.aspx?xh=" + session.getAttribute("userId"))
                 .cookies(loginPageCookies)
                 .ignoreContentType(true)
                 .execute();
 
-        String className = Jsoup.parse(cjResponse.body())
+        String className = Jsoup.parse(resultResponse.body())
                 .getElementById("lbl_xzb").text();
 
         className = className.substring(4);
 
-        String viewState = Jsoup.parse(cjResponse.body())
+        String viewState = Jsoup.parse(resultResponse.body())
                 .getElementsByTag("input")
                 .get(2).attr("value");
 
         Connection.Response lncjResponse = Jsoup
                 .connect
                         (
-                                "http://jwxt.nit.net.cn/xscjcx.aspx?xh="
-                                        + session.getAttribute("userId")
+                                "http://jwxt.nit.net.cn/xscjcx.aspx?xh=" + session.getAttribute("userId")
                                         + "&xm="
                                         + session.getAttribute("userName")
                                         + "&gnmkdm=N1216j5"

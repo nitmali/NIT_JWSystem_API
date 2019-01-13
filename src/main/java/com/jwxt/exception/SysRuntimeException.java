@@ -1,5 +1,7 @@
 package com.jwxt.exception;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 系统运行时异常类
  * 主要保存运行时异常消息
@@ -7,6 +9,7 @@ package com.jwxt.exception;
  *
  * @author mason nitmali
  */
+@Slf4j
 public class SysRuntimeException extends RuntimeException {
 
     private String message = null;
@@ -38,12 +41,14 @@ public class SysRuntimeException extends RuntimeException {
     }
 
     public SysRuntimeException(String message) {
+        log.error(message);
         this.message = message;
         this.type = MessageEnum.WARNING.getValue();
     }
 
     public SysRuntimeException(String message, MessageEnum messageEnum) {
         super(message);
+        log.info(message);
         this.type = messageEnum.getValue();
     }
 }

@@ -32,7 +32,7 @@ const resultApp = new Vue({
             resultApp.resultList = [];
             resultApp.loading = true;
             const apiAddress = window.location.host;
-            $.get(`http://${apiAddress ? apiAddress : 'localhost:10000'}/getResultDirect`,
+            $.get(`http://${apiAddress ? apiAddress : 'localhost:10000'}/get-result-direct`,
                 {
                     userId: resultApp.userId,
                     password: resultApp.password,

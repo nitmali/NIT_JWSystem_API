@@ -2,8 +2,9 @@ package com.jwxt.controller;
 
 import com.jwxt.bean.Response;
 import com.jwxt.exception.SysRuntimeException;
-import com.jwxt.service.imbl.IGetResultServiceImpl;
+import com.jwxt.service.IGetClassScheduleService;
 import com.jwxt.service.ILogInService;
+import com.jwxt.service.imbl.IGetResultServiceImpl;
 import com.jwxt.utils.VerificationTool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 
 /**
@@ -31,6 +33,9 @@ public class ServiceController {
 
     @Resource
     private IGetResultServiceImpl iGetResultService;
+
+    @Resource
+    protected IGetClassScheduleService iGetClassScheduleService;
 
     @GetMapping("/login")
     public String systemLogin(HttpServletRequest request, String userId, String password) throws Exception {
@@ -53,7 +58,7 @@ public class ServiceController {
         }
     }
 
-    @GetMapping("/getResult")
+    @GetMapping("/get-result")
     public Response getResult(HttpServletRequest request, String key) {
 
         try {
@@ -63,7 +68,7 @@ public class ServiceController {
         }
     }
 
-    @GetMapping("/getResultDirect")
+    @GetMapping("/get-result-direct")
     public Response getResult(HttpServletRequest request, String userId, String password, String key) throws Exception {
         String loginMessage = systemLogin(request, userId, password);
 
@@ -81,10 +86,10 @@ public class ServiceController {
 
     }
 
-    @GetMapping("/getClassFrom")
-    public String getClassFrom() {
+    @GetMapping("/get-class-schedule")
+    public Response getClassFrom(HttpServletRequest request, String year, String yearNumber) throws IOException {
 
-        return "getClassFrom";
+        return new Response().success(iGetClassScheduleService.getClassSchedule(request, year, yearNumber));
     }
 
     @GetMapping("/train")
