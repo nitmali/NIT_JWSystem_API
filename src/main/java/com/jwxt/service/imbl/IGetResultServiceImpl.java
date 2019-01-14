@@ -32,8 +32,7 @@ public class IGetResultServiceImpl implements IGetResultService {
         Connection.Response resultResponse = Jsoup.connect
                 (
                         "http://jwxt.nit.net.cn/xscjcx.aspx?"
-                                + "xh="
-                                + session.getAttribute("userId")
+                                + "xh=" + session.getAttribute("userId")
                                 + "&gnmkdm=N1216j5"
                 )
                 .method(Connection.Method.GET)
@@ -51,7 +50,7 @@ public class IGetResultServiceImpl implements IGetResultService {
                 .getElementsByTag("input")
                 .get(2).attr("value");
 
-        Connection.Response lncjResponse = Jsoup
+        Connection.Response allResultResponse = Jsoup
                 .connect
                         (
                                 "http://jwxt.nit.net.cn/xscjcx.aspx?xh=" + session.getAttribute("userId")
@@ -83,7 +82,7 @@ public class IGetResultServiceImpl implements IGetResultService {
                 + "  " + session.getAttribute("userName")
                 + " 于 " + new Date() + " 查询成绩 ");
 
-        Document getPage = Jsoup.parse(lncjResponse.body());
+        Document getPage = Jsoup.parse(allResultResponse.body());
 
         Elements getTable = getPage.select("#Datagrid1");
 
