@@ -14,6 +14,9 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Map;
 
+import static com.jwxt.service.imbl.ILoginServiceImpl.GET_VERIFICATION_URL;
+import static com.jwxt.service.imbl.ILoginServiceImpl.HOST;
+
 /**
  * @author me@nitmali.com
  * @date 2018/12/14 15:47
@@ -30,8 +33,17 @@ public class VerificationServiceImpl implements IVerificationService {
 
     @Override
     public String getVerificationCode(Map<String, String> loginPageCookies) throws IOException {
+
+        Connection.Response verificationCodeUrl = Jsoup
+                .connect(HOST + GET_VERIFICATION_URL)
+                .method(Connection.Method.GET)
+                .data("FunMode", "GETYZM")
+                .cookies(loginPageCookies)
+                .ignoreContentType(true)
+                .execute();
+
         Connection.Response txtSecretCodeResponse = Jsoup
-                .connect(ILoginServiceImpl.GET_VERIFICATION_URL)
+                .connect(HOST + verificationCodeUrl.body())
                 .method(Connection.Method.GET)
                 .cookies(loginPageCookies)
                 .ignoreContentType(true)

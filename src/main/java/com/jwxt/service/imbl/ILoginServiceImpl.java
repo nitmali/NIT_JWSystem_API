@@ -41,8 +41,9 @@ public class ILoginServiceImpl implements ILogInService{
     public static final String USER_ID_ERROR = "用户名不存在或未按照要求参加教学活动";
     public static final String PASSWORD_ERROR = "密码错误";
     public static final String ID_PASSWORD_NULL_ERROR = "学号和密码不得为空";
-    public static final String LOGIN_URL = "http://jwxt.nit.net.cn/default2.aspx";
-    public static final String GET_VERIFICATION_URL = "http://jwxt.nit.net.cn/CheckCode.aspx";
+    public static final String HOST = "http://jwxt.nit.net.cn";
+    public static final String LOGIN_URL = "http://jwxt.nit.net.cn/";
+    public static final String GET_VERIFICATION_URL = "/ajaxRequest/Handler1.ashx";
 
     @Resource
     private IVerificationService iVerificationService;
@@ -72,7 +73,7 @@ public class ILoginServiceImpl implements ILogInService{
 
         try {
             Connection.Response fistResponse = Jsoup
-                    .connect(LOGIN_URL)
+                    .connect(HOST)
                     .method(Connection.Method.GET)
                     .timeout(5000)
                     .execute();

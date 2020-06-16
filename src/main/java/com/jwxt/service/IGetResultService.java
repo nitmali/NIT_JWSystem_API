@@ -8,6 +8,6 @@ import java.util.Map;
 
 public interface IGetResultService {
 
-     List<Map<String, String>> getResult(HttpServletRequest request, String key) throws IOException;
+     List<Map<String, String>> getResult(HttpServletRequest request, String year, String yearNumber) throws IOException;
 
 }

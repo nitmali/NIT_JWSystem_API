@@ -23,10 +23,11 @@ import java.util.*;
 public class IGetResultServiceImpl implements IGetResultService {
 
     @Override
-    public List<Map<String, String>> getResult(HttpServletRequest request, String key) throws IOException {
+    public List<Map<String, String>> getResult(HttpServletRequest request, String year, String yearNumber) throws IOException {
 
         HttpSession session = request.getSession();
 
+        @SuppressWarnings("unchecked")
         Map<String, String> loginPageCookies = (Map<String, String>) session.getAttribute("loginPageCookies");
 
         Connection.Response resultResponse = Jsoup.connect
@@ -98,7 +99,7 @@ public class IGetResultServiceImpl implements IGetResultService {
 
         resultMapList.add(userMap);
         int classSum;
-        Double achievementSum = 0d;
+        double achievementSum = 0d;
         for (classSum = 1; classSum < trs.size(); classSum++) {
             Elements tds = trs.get(classSum).select("td");
             Map<String, String> resultMap = new HashMap<>();
@@ -109,9 +110,6 @@ public class IGetResultServiceImpl implements IGetResultService {
                         tds.get(j).text()
                 );
             }
-//            if (key != null && !"".equals(key) && resultMap.get("课程名称").contains(key)) {
-//                resultMapList.add(resultMap);
-//            }
             if (resultMap.containsKey("绩点")) {
                 try {
                     achievementSum += Double.valueOf(resultMap.get("绩点"));

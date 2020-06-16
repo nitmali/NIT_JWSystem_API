@@ -38,7 +38,7 @@ public class ServiceController {
     protected IGetClassScheduleService iGetClassScheduleService;
 
     @GetMapping("/login")
-    public String systemLogin(HttpServletRequest request, String userId, String password) throws Exception {
+    public Response systemLogin(HttpServletRequest request, String userId, String password) throws Exception {
         String loginMessage = null;
         String verificationError = "验证码不正确";
         int maxLogin = 9;
@@ -52,31 +52,31 @@ public class ServiceController {
             }
         }
         if (!loginMessage.contains(verificationError)) {
-            return loginMessage;
+            return new Response().success(loginMessage);
         } else {
             throw new SysRuntimeException("验证码错误请重新登陆");
         }
     }
 
     @GetMapping("/get-result")
-    public Response getResult(HttpServletRequest request, String key) {
+    public Response getResult(HttpServletRequest request, String year, String yearNumber) {
 
         try {
-            return new Response().success(iGetResultService.getResult(request, key));
+            return new Response().success(iGetResultService.getResult(request, year, yearNumber));
         } catch (Exception e) {
             throw new SysRuntimeException("请使用 /login?userId=学号&password=密码 登录");
         }
     }
 
     @GetMapping("/get-result-direct")
-    public Response getResult(HttpServletRequest request, String userId, String password, String key) throws Exception {
-        String loginMessage = systemLogin(request, userId, password);
+    public Response getResult(HttpServletRequest request, String userId, String password, String year, String yearNumber) throws Exception {
+        String loginMessage = systemLogin(request, userId, password).getData().toString();
 
         String error = "错误";
 
         if (!loginMessage.contains(error)) {
             try {
-                return new Response().success(iGetResultService.getResult(request, key));
+                return new Response().success(iGetResultService.getResult(request, year, yearNumber));
             } catch (Exception e) {
                 throw new SysRuntimeException("请使用 /login?userId=学号&password=密码 登录");
             }
